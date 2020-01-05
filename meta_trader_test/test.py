@@ -77,4 +77,4 @@ plt.title('EURAUD ticks')
 plt.show()
 
 
-# %%
+#%%
