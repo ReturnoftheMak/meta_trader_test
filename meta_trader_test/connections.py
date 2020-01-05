@@ -1,6 +1,6 @@
 #%% Package imports
 
-from MetaTrader5 import *
+from MetaTrader5 import MT5Initialize, MT5WaitForTerminal, MT5TerminalInfo, MT5Version, MT5Shutdown
 
 
 #%%
