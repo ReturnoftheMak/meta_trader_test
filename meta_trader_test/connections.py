@@ -3,7 +3,7 @@
 from MetaTrader5 import MT5Initialize, MT5WaitForTerminal, MT5TerminalInfo, MT5Version, MT5Shutdown
 
 
-#%%
+#%% Connection functions
 
 def connect():
     """Connect and print relevant connection information to terminal
@@ -30,9 +30,9 @@ def connect():
     # get data on MetaTrader 5 version
     version = MT5Version()
 
-    print('MetaTrader 5 terminal version: ' + version[0])
-    print('Build: ' + version[1])
-    print('Build release date: ' + version[2])
+    print('MetaTrader 5 terminal version: ' + str(version[0]))
+    print('Build: ' + str(version[1]))
+    print('Build release date: ' + str(version[2]))
 
 
 def disconnect():
@@ -43,3 +43,5 @@ def disconnect():
     print('Disconnected from server')
 
     pass
+
+# %%

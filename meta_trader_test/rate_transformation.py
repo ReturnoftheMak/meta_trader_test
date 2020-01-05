@@ -1,10 +1,8 @@
 #%% Package imports
 
 from datetime import datetime
-from MetaTrader5 import *
 import pandas as pd
 from pytz import timezone
-import matplotlib.pyplot as plt
 utc_tz = timezone('UTC')
 
 
