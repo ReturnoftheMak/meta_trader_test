@@ -26,6 +26,8 @@ def convert_rate_tuple(rates):
 
     df = pd.DataFrame(data)
 
+    df.set_index('time', inplace=True)
+
     return df
 
 
