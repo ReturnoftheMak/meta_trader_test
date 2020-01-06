@@ -15,7 +15,7 @@ utc_tz = timezone('UTC')
 
 def high_timeframe_check(currency):
     """Checks the condition using D1 candles for given currency.
-    The condition in this case is the current price being higher 
+    The condition in this case is the current price being lower/higher 
     than both 3 and 6 months prior.
     """
 
@@ -51,6 +51,24 @@ def high_timeframe_check(currency):
 
     # Check the logic for this pair
 
+    # Short entry
+    low_3month = df_3month.low.min()
+    low_6month = df_6month.low.min()
+    current = df_current.close.min()
+
+    short_condition = current < low_3month and current < low_6month
+
+    # Long entry
+    high_3month = df_3month.high.max()
+    high_6month = df_6month.high.max()
+    current = df_current.close.max()
+
+    long_condition = current > high_3month and current > high_6month
+
+    # How do I know there's a close on the current price?
+    # Maybe use the ticks for latest
+
+    return short_condition, long_condition
 
 
 #%%
