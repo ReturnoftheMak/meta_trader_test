@@ -5,6 +5,7 @@ from dateutil.relativedelta import relativedelta
 from MetaTrader5 import MT5CopyRatesFromPos, MT5_TIMEFRAME_D1
 from pytz import timezone
 from rate_transformation import convert_rate_tuple
+from connections import connect, disconnect
 utc_tz = timezone('UTC')
 
 
@@ -72,6 +73,8 @@ def high_timeframe_check(currency):
 
 
 #%%
+
+connect()
 
 usdchf_rates = high_timeframe_check("USDCHF")
 
