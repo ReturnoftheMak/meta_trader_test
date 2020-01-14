@@ -7,6 +7,12 @@ from MetaTrader5 import MT5Initialize, MT5WaitForTerminal, MT5TerminalInfo, MT5V
 
 def connect():
     """Connect and print relevant connection information to terminal
+
+    Args:
+        None
+
+    Return:
+        None
     """
 
     # Expected return true for both functions
@@ -37,6 +43,12 @@ def connect():
 
 def disconnect():
     """Disconnect from server, returns True
+
+    Args:
+        None
+
+    Returns:
+        None
     """
 
     MT5Shutdown()
@@ -44,4 +56,4 @@ def disconnect():
 
     pass
 
-# %%
+#%%
