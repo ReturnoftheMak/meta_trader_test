@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from MetaTrader5 import MT5CopyRatesFromPos, MT5_TIMEFRAME_D1
+from MetaTrader5 import MT5CopyRatesFromPos, MT5_TIMEFRAME_D1, MT5_TIMEFRAME_H4
 from pytz import timezone
 from rate_transformation import convert_rate_tuple
 from connections import connect, disconnect
@@ -18,6 +18,12 @@ def high_timeframe_check(currency):
     """Checks the condition using D1 candles for given currency.
     The condition in this case is the current price being lower/higher 
     than both 3 and 6 months prior.
+
+    Args:
+        currency (str): Name of the currency pair
+    
+    Returns:
+        tuple of 2 booleans for condition passes, short and long
     """
 
     x = MT5CopyRatesFromPos(currency, MT5_TIMEFRAME_D1, 0, 200)
@@ -32,7 +38,7 @@ def high_timeframe_check(currency):
     # will mean we need to get to the weekday preceding the 3/6 month
 
     def get_preceding_weekday(latest_date, month_delta, df):
-        """Get the date from
+        """Get the date for the relevant day 6 months prior
         """
 
         check_date = latest_date + relativedelta(months=-month_delta)
@@ -76,13 +82,67 @@ def high_timeframe_check(currency):
 
 connect()
 
-usdchf_rates = high_timeframe_check("USDCHF")
+usdchf_rates_check = high_timeframe_check("USDCHF")
 
-usdjpy_rates = high_timeframe_check("USDJPY")
+usdjpy_rates_check = high_timeframe_check("USDJPY")
 
-eurusd_rates = high_timeframe_check("EURUSD")
+eurusd_rates_check = high_timeframe_check("EURUSD")
 
-gbpusd_rates = high_timeframe_check("GBPUSD")
+gbpusd_rates_check = high_timeframe_check("GBPUSD")
 
 
-#%% 
+#%% Now we need to look at the lower timeframe
+
+# Two cases, one for long and one for short
+
+def lower_time_frame_short(currency):
+    """Evaluates a short condition for the H4 timeframe,
+    whether the latest wick is the highest of the last 6
+
+    Args:
+        currency (str): Name of the currency pair
+    
+    Return:
+        boolean whether condition is met
+    """
+
+    x = MT5CopyRatesFromPos(currency, MT5_TIMEFRAME_H4, 0, 6)
+
+    df = convert_rate_tuple(x)
+
+    latest_date = df.index.max()
+
+    # condition - latest wick is highest of last 6
+
+    highest_wick = df.high.max()
+
+    short_condition = df.loc[str(latest_date)].high == highest_wick
+
+    return short_condition
+
+
+def lower_time_frame_long(currency):
+    """Evaluates a long condition for the H4 timeframe,
+    whether the latest wick is the lowest of the last 6
+
+    Args:
+        currency (str): Name of the currency pair
+    
+    Return:
+        boolean whether condition is met
+    """
+
+    x = MT5CopyRatesFromPos(currency, MT5_TIMEFRAME_H4, 0, 6)
+
+    df = convert_rate_tuple(x)
+
+    latest_date = df.index.max()
+
+    # condition - latest wick is lowest of last 6
+
+    lowest_wick = df.low.min()
+
+    long_condition = df.loc[str(latest_date)].low == lowest_wick
+
+    return long_condition
+
