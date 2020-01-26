@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from MetaTrader5 import MT5CopyRatesFromPos, MT5_TIMEFRAME_D1, MT5_TIMEFRAME_H4
+from MetaTrader5 import MT5CopyRatesFromPos, MT5_TIMEFRAME_D1, MT5_TIMEFRAME_H4, MT5CopyTicksRange
 from pytz import timezone
 from rate_transformation import convert_rate_tuple
 from connections import connect, disconnect
@@ -116,9 +116,11 @@ def lower_time_frame_short(currency):
 
     highest_wick = df.high.max()
 
-    short_condition = df.loc[str(latest_date)].high == highest_wick
+    latest_candle = df.loc[str(latest_date)]
 
-    return short_condition
+    short_condition = latest_candle.high == highest_wick
+
+    return short_condition, latest_candle
 
 
 def lower_time_frame_long(currency):
@@ -142,7 +144,28 @@ def lower_time_frame_long(currency):
 
     lowest_wick = df.low.min()
 
-    long_condition = df.loc[str(latest_date)].low == lowest_wick
+    latest_candle = df.loc[str(latest_date)]
 
-    return long_condition
+    long_condition = latest_candle.low == lowest_wick
+
+    return long_condition, latest_candle, latest_date
+
+
+#%% Entry conditions, differ based on long/short
+
+# For this we'll need tick data
+
+def short_entry(currency, latest_candle, latest_date):
+    """Docstring
+    """
+
+    date_start = latest_date + relativedelta(hours=4)
+    date_end = latest_date + relativedelta(hours=8)
+
+    ticks = MT5CopyTicksRange(currency,
+                              datetime(date_start.year, date_start.month, date_start.day, date_start.hour),
+                              datetime(date_end.year, date_end.month, date_end.day, date_end.hour),
+                              MT5_COPY_TICKS_ALL)
+    
+    # get the
 
