@@ -162,10 +162,18 @@ def short_entry(currency, latest_candle, latest_date):
     date_start = latest_date + relativedelta(hours=4)
     date_end = latest_date + relativedelta(hours=8)
 
+    # Get the ticks for the next candle time-period
+
     ticks = MT5CopyTicksRange(currency,
                               datetime(date_start.year, date_start.month, date_start.day, date_start.hour),
                               datetime(date_end.year, date_end.month, date_end.day, date_end.hour),
                               MT5_COPY_TICKS_ALL)
     
-    # get the
+    # Use the latest candle to set entry, TP and SL
+
+    entry_point = latest_candle.low
+    stop_loss = latest_candle.high
+    take_profit = entry_point - (latest_candle.high - latest_candle.low)
+
+    # Evaluate whether these get hit or not
 
