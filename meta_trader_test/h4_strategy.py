@@ -2,7 +2,8 @@
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from MetaTrader5 import MT5CopyRatesFromPos, MT5_TIMEFRAME_D1, MT5_TIMEFRAME_H4, MT5CopyTicksRange
+import pandas as pd
+from MetaTrader5 import MT5CopyRatesFromPos, MT5_TIMEFRAME_D1, MT5_TIMEFRAME_H4, MT5CopyTicksRange, MT5_COPY_TICKS_ALL
 from pytz import timezone
 from rate_transformation import convert_rate_tuple
 from connections import connect, disconnect
@@ -37,14 +38,14 @@ def high_timeframe_check(currency):
     # the required rows. It should be noted that weekday only trading
     # will mean we need to get to the weekday preceding the 3/6 month
 
-    def get_preceding_weekday(latest_date, month_delta, df):
-        """Get the date for the relevant day 6 months prior
+    def get_preceding_weekday(latest_date, n, df):
+        """Get the date for the relevant day n months prior
         """
 
-        check_date = latest_date + relativedelta(months=-month_delta)
+        check_date = latest_date + relativedelta(months=-n)
 
         while len(df[str(check_date).split(' ')[0]]) < 1:
-            check_date += relativedelta(days=-1)
+            check_date -= relativedelta(days=1)
 
         return check_date
 
@@ -95,6 +96,9 @@ gbpusd_rates_check = high_timeframe_check("GBPUSD")
 
 # Two cases, one for long and one for short
 
+# Consider what is the latest date that we want?
+# Latest datetime of the live candle may not yet be hit
+
 def lower_time_frame_short(currency):
     """Evaluates a short condition for the H4 timeframe,
     whether the latest wick is the highest of the last 6
@@ -120,7 +124,7 @@ def lower_time_frame_short(currency):
 
     short_condition = latest_candle.high == highest_wick
 
-    return short_condition, latest_candle
+    return short_condition, latest_candle, latest_date
 
 
 def lower_time_frame_long(currency):
@@ -159,8 +163,8 @@ def short_entry(currency, latest_candle, latest_date):
     """Docstring
     """
 
-    date_start = latest_date + relativedelta(hours=4)
-    date_end = latest_date + relativedelta(hours=8)
+    date_start = latest_date + relativedelta(hours=-4)
+    date_end = latest_date + relativedelta(hours=0)
 
     # Get the ticks for the next candle time-period
 
@@ -168,6 +172,9 @@ def short_entry(currency, latest_candle, latest_date):
                               datetime(date_start.year, date_start.month, date_start.day, date_start.hour),
                               datetime(date_end.year, date_end.month, date_end.day, date_end.hour),
                               MT5_COPY_TICKS_ALL)
+    
+    ticks_frame = pd.DataFrame(list(ticks),
+                           columns=['time', 'bid', 'ask', 'last', 'volume', 'flags'])
     
     # Use the latest candle to set entry, TP and SL
 
@@ -177,3 +184,14 @@ def short_entry(currency, latest_candle, latest_date):
 
     # Evaluate whether these get hit or not
 
+    entry = ticks_frame[ticks_frame.bid <= entry_point]
+
+    # if entry is populated, trade takes place
+    # then we work out if the trade will trigger within this candle
+    
+    if len(entry) > 0:
+        
+
+
+
+# %%

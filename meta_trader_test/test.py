@@ -2,13 +2,17 @@
 #%% Package imports and timezone set
 
 from datetime import datetime
-from MetaTrader5 import *
+import MetaTrader5 as mt5
 from pytz import timezone
 import matplotlib.pyplot as plt
 utc_tz = timezone('UTC')
 
 
 #%% Connect
+
+# New syntax now
+
+mt5.initialize()
 
 MT5Initialize()
 MT5WaitForTerminal()
