@@ -116,4 +116,5 @@ def get_ticks_for_day(currency, date):
     return df
 
 
+# %% Backtesting
 
